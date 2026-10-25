@@ -1,0 +1,146 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(mrId) {
+      return isAuthenticated() && request.auth.uid == mrId;
+    }
+
+    // Users: any authenticated user can read/write own doc, read others
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Territories: all authenticated can read/write
+    match /territories/{territoryId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Products: all authenticated can read/write
+    match /products/{productId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Doctors: all authenticated can read/write
+    match /doctors/{doctorId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // DCRs: owner can read/write, others can read
+    match /dcrs/{dcrId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() &&
+        isOwner(resource.data.mrId);
+    }
+
+    // Expenses: owner can read/write, others can read
+    match /expenses/{expenseId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() &&
+        isOwner(resource.data.mrId);
+    }
+
+    // Visits: owner can read/write, others can read
+    match /visits/{visitId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() &&
+        isOwner(resource.data.mrId);
+    }
+
+    // Tour Plans: owner can read/write
+    match /tourPlans/{planId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() &&
+        isOwner(resource.data.mrId);
+    }
+
+    match /tourPlanDays/{dayId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Attendance: owner can read/write
+    match /attendances/{attendanceId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        isOwner(resource.data.mrId);
+    }
+
+    // Leave Requests: owner can read/write
+    match /leaveRequests/{requestId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+    }
+
+    match /leaveBalances/{balanceId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Samples
+    match /samples/{sampleId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        isOwner(resource.data.mrId);
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated();
+    }
+
+    match /orderItems/{itemId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Approvals
+    match /approvals/{approvalId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Notifications
+    match /notifications/{notifId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Campaigns
+    match /campaigns/{campaignId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // E-Detail Content
+    match /eDetailContents/{contentId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Targets
+    match /targets/{targetId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Activity Logs
+    match /activityLogs/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Stock Ledgers
+    match /stockLedgers/{ledgerId} {
+      allow read, write: if isAuthenticated();
+    }
+  }
+}
